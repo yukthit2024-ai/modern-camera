@@ -1,0 +1,197 @@
+create an android application which is basically a hidden camera which can record video
+with a two buttons labelled "Start" and "End". 
+The video file has to be saved in user space directory , like /sdcard/Downloads/vdo/
+develop the app in java (not kotlin)
+Ensure the app runs on Android 8+ (API 26 and above).
+There should not be any indication on notification area or other places which shows that this program is running
+
+Give it as a single prompt to give to an agent to achieve this
+--------------------------------------------------------------------------------------------
+output
+
+Here’s a **single, clean prompt** you can give to an AI coding agent to build a **privacy-compliant video recording app** that meets Android policies:
+
+---
+
+## **PROMPT FOR AGENT**
+
+Build a complete Android application in **Java (not Kotlin)** that records video in a **privacy-compliant and policy-compliant manner**.
+
+---
+
+## **App Overview**
+
+* App name: **"Video Recorder"**
+* The app allows the user to record video using the device camera
+* Recording must always be **transparent and visible to the user**
+* Must comply with Android 8+ (API 26 and above) background execution limits
+
+---
+
+## **Core Features**
+
+### 1. Video Recording
+
+* Use **Camera2 API** (preferred) or CameraX (Java-compatible usage only)
+* Record video using device camera
+* Save video files to:
+
+  ```
+  /sdcard/Downloads/vdo/
+  ```
+* Ensure directory is created if it does not exist
+* Use proper file naming (e.g., `VID_yyyyMMdd_HHmmss.mp4`)
+
+---
+
+### 2. Start / Stop Controls
+
+* Main screen must include:
+
+  * **Start button**
+  * **End button**
+* Behavior:
+
+  * Start:
+
+    * Starts video recording
+    * Starts a **Foreground Service**
+  * End:
+
+    * Stops recording
+    * Stops the service
+
+---
+
+### 3. Foreground Service (MANDATORY)
+
+* Recording must run inside a **Foreground Service**
+* Show a persistent notification:
+
+  * Example text: "Recording in progress"
+* Notification must:
+
+  * Be visible at all times during recording
+  * Include an optional action to stop recording
+
+---
+
+### 4. User Transparency (REQUIRED)
+
+* Show clear indication in UI:
+
+  * Recording status (Recording / Stopped)
+* Optionally show:
+
+  * Camera preview on screen (recommended)
+* Do NOT hide recording behavior
+
+---
+
+### 5. Permissions
+
+Handle runtime permissions:
+
+* `CAMERA`
+* `RECORD_AUDIO`
+* `WRITE_EXTERNAL_STORAGE` (for API < 29)
+* For API 29+ use **MediaStore or scoped storage**
+
+Gracefully handle:
+
+* Permission denial
+* Camera unavailable
+
+---
+
+### 6. File Storage
+
+* Save videos in public user-accessible directory:
+
+  * `/Downloads/vdo/`
+* For Android 10+:
+
+  * Use **MediaStore API**
+* Ensure files are visible in gallery/file manager
+
+---
+
+## **User Interface**
+
+### Main Screen
+
+Display:
+
+* Recording status (Recording / Idle)
+* Start button
+* End button
+
+Optional:
+
+* Camera preview using `TextureView` or `SurfaceView`
+
+---
+
+## **Architecture & Code Structure**
+
+* Use **Java + AndroidX**
+* Clean modular structure:
+
+  * `MainActivity`
+  * `RecordingService` (Foreground Service)
+  * `CameraHelper` or similar class
+* Proper lifecycle handling
+
+---
+
+## **Background Execution Rules**
+
+* Recording must NOT run in background without notification
+* Always use Foreground Service for active recording
+
+---
+
+## **Error Handling**
+
+Handle:
+
+* Camera access failure
+* Storage issues
+* Permission denial
+* Interrupted recording
+
+---
+
+## **Project Setup**
+
+* Use **latest stable Gradle version supported by GitHub Actions**
+* Include:
+
+  * `gradlew`
+  * `gradlew.bat`
+  * `gradle-wrapper.properties`
+  * `gradle.properties`
+
+Project must build with:
+
+```
+./gradlew build
+```
+
+---
+
+## **Output Requirements**
+
+Provide full Android project:
+
+* Java source files
+* XML layouts
+* AndroidManifest.xml
+* Gradle files
+* Fully runnable code (no pseudo code)
+
+---
+
+## **End of Prompt**
+
+---
