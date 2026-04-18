@@ -140,6 +140,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void startRecording() {
         if (isBound && recordingService != null) {
+            // Explicitly start the service as a foreground service with the correct action
+            Intent intent = new Intent(this, RecordingService.class);
+            intent.setAction(RecordingService.ACTION_START_RECORDING);
+            ContextCompat.startForegroundService(this, intent);
+
             if (previewSurface != null) {
                 recordingService.setPreviewSurface(previewSurface);
             }

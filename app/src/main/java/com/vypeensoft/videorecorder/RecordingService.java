@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -90,14 +91,18 @@ public class RecordingService extends Service {
     public void startRecording() {
         if (isRecording) return;
 
+        // In Android 14+, we MUST call startForeground BEFORE or WHILE accessing camera in background
+        startForeground(NOTIFICATION_ID, createNotification());
+
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
             String cameraId = manager.getCameraIdList()[0]; // Default to first camera
+            Size videoSize = getBestVideoSize(manager, cameraId);
             manager.openCamera(cameraId, new CameraDevice.StateCallback() {
                 @Override
                 public void onOpened(@NonNull CameraDevice camera) {
                     cameraDevice = camera;
-                    prepareMediaRecorder();
+                    prepareMediaRecorder(videoSize);
                     startCaptureSession();
                 }
 
@@ -118,7 +123,7 @@ public class RecordingService extends Service {
         }
     }
 
-    private void prepareMediaRecorder() {
+    private void prepareMediaRecorder(Size videoSize) {
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
@@ -145,7 +150,7 @@ public class RecordingService extends Service {
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mediaRecorder.setVideoEncodingBitRate(10_000_000);
         mediaRecorder.setVideoFrameRate(30);
-        mediaRecorder.setVideoSize(1920, 1080); // Standard Full HD
+        mediaRecorder.setVideoSize(videoSize.getWidth(), videoSize.getHeight());
         mediaRecorder.setOrientationHint(90); // Portrait for most devices
 
         try {
@@ -176,10 +181,17 @@ public class RecordingService extends Service {
                         }
 
                         captureSession.setRepeatingRequest(builder.build(), null, null);
-                        mediaRecorder.start();
-                        isRecording = true;
+                        
+                        try {
+                            mediaRecorder.start();
+                            isRecording = true;
+                        } catch (IllegalStateException e) {
+                            Log.e(TAG, "MediaRecorder start failed", e);
+                            stopRecording();
+                        }
                     } catch (CameraAccessException e) {
                         Log.e(TAG, "Session configuration failed", e);
+                        stopRecording();
                     }
                 }
 
@@ -191,6 +203,31 @@ public class RecordingService extends Service {
         } catch (CameraAccessException e) {
             Log.e(TAG, "Failed to create capture session", e);
         }
+    }
+
+    private Size getBestVideoSize(CameraManager manager, String cameraId) {
+        try {
+            android.hardware.camera2.CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+            android.hardware.camera2.params.StreamConfigurationMap map = characteristics.get(
+                    android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            
+            if (map != null) {
+                Size[] sizes = map.getOutputSizes(MediaRecorder.class);
+                if (sizes != null && sizes.length > 0) {
+                    // Look for 1080p specifically
+                    for (Size size : sizes) {
+                        if (size.getWidth() == 1920 && size.getHeight() == 1080) {
+                            return size;
+                        }
+                    }
+                    // Fallback to highest available (first in list usually)
+                    return sizes[0];
+                }
+            }
+        } catch (CameraAccessException e) {
+            Log.e(TAG, "Failed to get camera characteristics", e);
+        }
+        return new Size(1280, 720); // Default fallback
     }
 
     public void stopRecording() {
