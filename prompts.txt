@@ -1,9 +1,9 @@
-create an android application which is basically a hidden camera which can record video
+create an android application which is basically a camera which can record video
 with a two buttons labelled "Start" and "End". 
-The video file has to be saved in user space directory , like /sdcard/Downloads/vdo/
+The video file has to be saved in user space directory , like /sdcard/Downloads/Vypeensoft/vdo/
 develop the app in java (not kotlin)
 Ensure the app runs on Android 8+ (API 26 and above).
-There should not be any indication on notification area or other places which shows that this program is running
+The screen should be loaded with an JPG(which developer will provide 'Phone_Calling_BG.jpg')
 
 Give it as a single prompt to give to an agent to achieve this
 --------------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ Build a complete Android application in **Java (not Kotlin)** that records video
 
 ## **App Overview**
 
-* App name: **"Video Recorder"**
+* App name: **"Phone Caller Camera"**
 * The app allows the user to record video using the device camera
 * Recording must always be **transparent and visible to the user**
 * Must comply with Android 8+ (API 26 and above) background execution limits
@@ -37,7 +37,7 @@ Build a complete Android application in **Java (not Kotlin)** that records video
 * Save video files to:
 
   ```
-  /sdcard/Downloads/vdo/
+  /sdcard/Downloads/Vypeensoft/vdo/
   ```
 * Ensure directory is created if it does not exist
 * Use proper file naming (e.g., `VID_yyyyMMdd_HHmmss.mp4`)
@@ -63,31 +63,6 @@ Build a complete Android application in **Java (not Kotlin)** that records video
 
 ---
 
-### 3. Foreground Service (MANDATORY)
-
-* Recording must run inside a **Foreground Service**
-* Show a persistent notification:
-
-  * Example text: "Recording in progress"
-* Notification must:
-
-  * Be visible at all times during recording
-  * Include an optional action to stop recording
-
----
-
-### 4. User Transparency (REQUIRED)
-
-* Show clear indication in UI:
-
-  * Recording status (Recording / Stopped)
-* Optionally show:
-
-  * Camera preview on screen (recommended)
-* Do NOT hide recording behavior
-
----
-
 ### 5. Permissions
 
 Handle runtime permissions:
@@ -108,7 +83,7 @@ Gracefully handle:
 
 * Save videos in public user-accessible directory:
 
-  * `/Downloads/vdo/`
+  * `/sdcard/Downloads/Vypeensoft/vdo/`
 * For Android 10+:
 
   * Use **MediaStore API**
@@ -122,13 +97,14 @@ Gracefully handle:
 
 Display:
 
+* A background image
 * Recording status (Recording / Idle)
 * Start button
 * End button
 
 Optional:
 
-* Camera preview using `TextureView` or `SurfaceView`
+* Camera preview using `TextureView` or `SurfaceView` in a small window at left bottom of the screen
 
 ---
 
@@ -144,12 +120,6 @@ Optional:
 
 ---
 
-## **Background Execution Rules**
-
-* Recording must NOT run in background without notification
-* Always use Foreground Service for active recording
-
----
 
 ## **Error Handling**
 

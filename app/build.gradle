@@ -3,9 +3,31 @@ plugins {
     id 'com.android.application'
 }
 
-def gitSha = 'git rev-parse --short HEAD'.execute().text.trim()
-def gitShaFull = 'git rev-parse HEAD'.execute().text.trim()
-def gitTag = 'git describe        --tags'.execute().text.trim()
+def getGitSha = { ->
+    try {
+        return 'git rev-parse --short HEAD'.execute().text.trim()
+    } catch (Exception ignored) {
+        return "unknown"
+    }
+}
+def getGitShaFull = { ->
+    try {
+        return 'git rev-parse HEAD'.execute().text.trim()
+    } catch (Exception ignored) {
+        return "unknown"
+    }
+}
+def getGitTag = { ->
+    try {
+        return 'git describe --tags'.execute().text.trim()
+    } catch (Exception ignored) {
+        return "none"
+    }
+}
+
+def gitSha = getGitSha()
+def gitShaFull = getGitShaFull()
+def gitTag = getGitTag()
 
 android {
     namespace 'com.vypeensoft.videorecorder'
@@ -25,7 +47,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Inject Git info into BuildConfig
-        buildConfigField "String", "BUILD_TIMESTAMP", "\"${new Date().format('yyyyMMdd.HHmmss')}\""
+        //buildConfigField "String", "BUILD_TIMESTAMP", "\"${new Date().format('yyyyMMdd.HHmmss')}\""
+        buildConfigField "String", "BUILD_TIMESTAMP", "\"${new Date().format('yyyyMMdd.HHmmss', TimeZone.getTimeZone('Asia/Kolkata'))}\""
         buildConfigField "String", "GIT_SHA", "\"${gitSha}\""
         buildConfigField "String", "GIT_SHA_FULL", "\"${gitShaFull}\""
         buildConfigField "String", "GIT_TAG", "\"${gitTag}\""		

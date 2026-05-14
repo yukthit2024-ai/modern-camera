@@ -16,7 +16,7 @@ import java.util.Locale;
 
 public class StorageHelper {
     private static final String TAG = "StorageHelper";
-    private static final String FOLDER_NAME = "vdo";
+    private static final String FOLDER_NAME = "Vypeensoft/vdo";
 
     public static String generateFileName() {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());

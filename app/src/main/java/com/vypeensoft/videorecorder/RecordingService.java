@@ -23,6 +23,7 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
+import android.content.pm.ServiceInfo;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
@@ -68,7 +69,12 @@ public class RecordingService extends Service {
                 stopForeground(true);
                 stopSelf();
             } else if (ACTION_START_RECORDING.equals(action)) {
-                startForeground(NOTIFICATION_ID, createNotification());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(NOTIFICATION_ID, createNotification(), 
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA | ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
+                } else {
+                    startForeground(NOTIFICATION_ID, createNotification());
+                }
             }
         }
         return START_STICKY;
@@ -92,7 +98,12 @@ public class RecordingService extends Service {
         if (isRecording) return;
 
         // In Android 14+, we MUST call startForeground BEFORE or WHILE accessing camera in background
-        startForeground(NOTIFICATION_ID, createNotification());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, createNotification(), 
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA | ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
+        } else {
+            startForeground(NOTIFICATION_ID, createNotification());
+        }
 
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
@@ -282,7 +293,7 @@ public class RecordingService extends Service {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Recording in Progress")
                 .setContentText("Video is being recorded")
-                .setSmallIcon(android.R.drawable.presence_video_busy)
+                .setSmallIcon(R.drawable.ic_video)
                 .setContentIntent(pendingIntent)
                 .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop Recording", stopPendingIntent)
                 .setOngoing(true)
